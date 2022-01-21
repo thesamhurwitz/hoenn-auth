@@ -5,6 +5,8 @@ import morgan from 'morgan'
 import router from './router'
 import cors from 'cors'
 
+import { config } from './config'
+
 export const app = express()
 
 // Custom error handler
@@ -22,10 +24,10 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(morgan('tiny'))
 app.use(cors())
-app.use('/', router)
+app.use(config.app.routePrefix, router)
 app.use(defaultRoute) // default route has to be last route
 app.use(errorHandler) // Error handler goes last
 
-app.listen(3000, () => {
-  console.log(`Express server listening on port ${3000}`)
+app.listen(config.app.port, () => {
+  console.log(`Express server listening on port ${config.app.port}`)
 })

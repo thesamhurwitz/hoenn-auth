@@ -1,0 +1,42 @@
+{
+  "name": "hoenn-auth",
+  "version": "0.0.1",
+  "description": "Single Sign-On service for all Hoenn Team Projects",
+  "scripts": {
+    "build": "yarn lint && yarn clean && tsc",
+    "dev": "nodemon --watch src --watch .env",
+    "dev.inspect": "nodemon --watch src --watch .env --inspect",
+    "start": "cross-env NODE_ENV=production node ./dist/app.js",
+    "prod": "yarn build && yarn start",
+    "clean": "rimraf ./dist",
+    "lint": "tslint ./src/**/*.ts"
+  },
+  "author": "Sam Hurwitz",
+  "license": "MIT",
+  "main": "src/app.ts",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "repository": "",
+  "keywords": [],
+  "homepage": "",
+  "dependencies": {
+    "@types/express": "^4.17.0",
+    "@types/node": "^12.0.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "morgan": "^1.9.1",
+    "typescript": "^3.5.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^1.17.1",
+    "rimraf": "^3.0.2",
+    "tslint": "^5.17.0",
+    "tslint-config-airbnb": "^5.11.1"
+  }
+}

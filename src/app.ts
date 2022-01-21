@@ -1,33 +1,13 @@
-import express from 'express'
-import { Request, Response, NextFunction } from 'express'
-import * as bodyParser from 'body-parser'
-import morgan from 'morgan'
-import router from './router'
-import cors from 'cors'
-
 import { config } from './config'
 
-export const app = express()
+import { configure, format, transports } from 'winston';
 
-// Custom error handler
-function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
-  console.error(err.stack)
-  res.status(500).json({ error: err.message })
-}
-
-// Default route
-function defaultRoute(req: Request, res: Response, next: NextFunction) {
-  res.sendStatus(404)
-}
-
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(morgan('tiny'))
-app.use(cors())
-app.use(config.app.routePrefix, router)
-app.use(defaultRoute) // default route has to be last route
-app.use(errorHandler) // Error handler goes last
-
-app.listen(config.app.port, () => {
-  console.log(`Express server listening on port ${config.app.port}`)
+configure({
+  transports: [
+    new transports.Console({
+      level: config.log.level,
+      handleExceptions: true,
+      format: config.node !== 'development' ? format.combine(format.json()) : format.combine(format.colorize(), format.simple()),
+    }),
+  ],
 })

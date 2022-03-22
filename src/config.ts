@@ -26,6 +26,19 @@ export const config = {
     json: toBool(getEnvOptional('LOG_JSON')),
     output: getEnv('LOG_OUTPUT'),
   },
+  session: {
+    idBytes: toNumber(getEnv('SESSION_ID_BYTES')),
+    useSecret: toBool(getEnv('USE_SESSION_SECRET')),
+    secret: getEnv('SESSION_SECRET'),
+    rotateSecrets: toBool(getEnv('ROTATE_SECRETS')),
+    cookieName: getEnv('SESSION_COOKIE_NAME'),
+    cookieMaxAge: toSeconds(getEnv('SESSION_COOKIE_MAXAGE')),
+    cookieSecure: toBool(getEnv('SESSION_COOKIE_SECURE')),
+    cookieHttpOnly: toBool(getEnv('SESSION_COOKIE_HTTPONLY')),
+    cookieSameSite: getEnv('SESSION_COOKIE_SAMESITE') as 'lax' | 'strict' | 'none',
+    cookieDomain: getEnv('SESSION_COOKIE_DOMAIN'),
+    cookiePath: getEnv('SESSION_COOKIE_PATH'),
+  },
   // db: {
   //     type: getOsEnv('DB_CONNECTION'),
   //     host: getOsEnvOptional('DB_HOST'),
@@ -66,4 +79,26 @@ export function toNumber(value: string): number {
 
 export function toBool(value: string): boolean {
   return value === 'true';
+}
+
+export function toSeconds(value: string): number {
+  const number = parseInt(value.match(/^[0-9]*/gi)[0]);
+  const unit = value.match(/[a-zA-Z]*$/gi)[0];
+
+  switch (unit) {
+    case 's':
+      return number;
+    case 'm':
+      return number * 60;
+    case 'h':
+      return number * 60 * 60;
+    case 'd':
+      return number * 60 * 60 * 24;
+    case 'mo':
+      return number * 60 * 60 * 24 * 30;
+    case 'y':
+      return number * 60 * 60 * 24 * 365;
+    default:
+      return number;
+  }
 }

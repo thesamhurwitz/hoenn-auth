@@ -1,25 +1,30 @@
 import { join } from 'path';
 import 'reflect-metadata';
 import { config } from './config';
-
 import express, { Application } from 'express';
 import { createExpressServer } from 'routing-controllers';
 import logger from './logger';
 import mrgn from 'morgan';
-
-import { UserController } from './user/user.controller';
+import authorizationChecker from './api/auth/authorizationChecker';
+import currentUserChecker from './api/auth/currentUserChecker';
 
 // App
 const expressApp: Application = createExpressServer({
-  cors: true,
+  cors: false,
   classTransformer: true,
   routePrefix: config.app.routePrefix,
   defaultErrorHandler: false,
 
-  controllers: [ UserController ],
-  middlewares: [],
+  controllers: [join(__dirname + '/api/**/*.controller.ts')],
+  middlewares: [join(__dirname + '/middlewares/*.ts')],
   interceptors: [],
+
+  authorizationChecker: authorizationChecker,
+  currentUserChecker: currentUserChecker,
 });
+
+// To expose client ip address (see http://expressjs.com/en/guide/behind-proxies.html)
+expressApp.set('trust proxy', true);
 
 expressApp.use(mrgn(config.log.output));
 

@@ -15,20 +15,17 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
     if (code >= 500) {
       res.json({
         name: 'Internal server error',
-        message: 'Internal server error',
+        message: 'Internal server error'
       });
+
+      logger.error('Internal server error occurred', { name: error.name, message: error.message });
     } else {
       res.json({
         name: error.name,
-        message: error.message,
-        errors: (error as any).errors || [],
+        message: error.message
       });
-    }
 
-    if (this.isProduction) {
-      logger.error(error.name, error.message);
-    } else {
-      logger.error(error.name, error.message);
+      logger.info('Http error occurred', { code: error.httpCode, name: error.name, message: error.message });
     }
   }
 }

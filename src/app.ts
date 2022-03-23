@@ -20,7 +20,7 @@ const expressApp: Application = createExpressServer({
   interceptors: [],
 
   authorizationChecker: authorizationChecker,
-  currentUserChecker: currentUserChecker,
+  currentUserChecker: currentUserChecker
 });
 
 // To expose client ip address (see http://expressjs.com/en/guide/behind-proxies.html)
@@ -32,7 +32,7 @@ expressApp.get(config.app.routePrefix, (req: express.Request, res: express.Respo
   return res.json({
     name: config.app.name,
     version: config.app.version,
-    description: config.app.description,
+    description: config.app.description
   });
 });
 

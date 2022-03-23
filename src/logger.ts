@@ -22,9 +22,9 @@ const logger = createLogger({
           format.splat(),
           format.simple(),
           prettyJson,
-        ),
-    }),
-  ],
+        )
+    })
+  ]
 });
 
 export default logger;

@@ -19,12 +19,12 @@ export const config = {
     host: getEnv('APP_HOST'),
     schema: getEnv('APP_SCHEMA'),
     routePrefix: getEnv('APP_ROUTE_PREFIX'),
-    port: toNumber(getEnv('APP_PORT')),
+    port: toNumber(getEnv('APP_PORT'))
   },
   log: {
     level: getEnv('LOG_LEVEL'),
     json: toBool(getEnvOptional('LOG_JSON')),
-    output: getEnv('LOG_OUTPUT'),
+    output: getEnv('LOG_OUTPUT')
   },
   session: {
     idBytes: toNumber(getEnv('SESSION_ID_BYTES')),
@@ -37,8 +37,8 @@ export const config = {
     cookieHttpOnly: toBool(getEnv('SESSION_COOKIE_HTTPONLY')),
     cookieSameSite: getEnv('SESSION_COOKIE_SAMESITE') as 'lax' | 'strict' | 'none',
     cookieDomain: getEnv('SESSION_COOKIE_DOMAIN'),
-    cookiePath: getEnv('SESSION_COOKIE_PATH'),
-  },
+    cookiePath: getEnv('SESSION_COOKIE_PATH')
+  }
 };
 
 export function getEnv(key: string): string {

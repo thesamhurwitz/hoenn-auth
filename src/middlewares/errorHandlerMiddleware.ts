@@ -12,7 +12,7 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
 
     res.status(code);
 
-    if (code === 500) {
+    if (code >= 500) {
       res.json({
         name: 'Internal server error',
         message: 'Internal server error',

@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
-import { config } from '../config';
-import logger from '../logger';
+import { config } from 'src/config';
+import logger from 'src/logger';
 
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
@@ -17,18 +17,18 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
         name: 'Internal server error',
         message: 'Internal server error',
       });
+    } else {
+      res.json({
+        name: error.name,
+        message: error.message,
+        errors: (error as any).errors || [],
+      });
     }
-
-    res.json({
-      name: error.name,
-      message: error.message,
-      errors: (error as any).errors || [],
-    });
 
     if (this.isProduction) {
       logger.error(error.name, error.message);
     } else {
-      logger.error(error.name, error.stack);
+      logger.error(error.name, error.message);
     }
   }
 }

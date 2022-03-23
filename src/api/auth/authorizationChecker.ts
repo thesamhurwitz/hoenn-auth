@@ -1,6 +1,6 @@
 import { Action } from 'routing-controllers';
-import { config } from '../../config';
-import logger from '../../logger';
+import { config } from 'src/config';
+import logger from 'src/logger';
 
 export default async function authorizationChecker(action: Action, roles: string[]): Promise<boolean> {
   if (roles.length > 0) {

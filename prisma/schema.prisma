@@ -35,8 +35,9 @@ model Session {
   device   Json?
   location Json?
 
-  firstAccess DateTime @default(now())
-  lastAccess  DateTime @updatedAt // TODO: remove updateAt, update when accessed
+  createdAt  DateTime @default(now())
+  lastAccess DateTime @updatedAt // TODO: remove updateAt, update when accessed
+  expires    DateTime
 
   @@index([key])
 }

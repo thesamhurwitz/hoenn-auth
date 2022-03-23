@@ -4,7 +4,8 @@ import { SigninDto } from './dto/signin.dto';
 import * as authService from './auth.service';
 import { Request, Response } from 'express';
 import { User } from '@prisma/client';
-import { config } from '../../config';
+import { config } from 'src/config';
+import { Authenticate } from './authenticate.decorator';
 
 @JsonController('/auth')
 export class AuthController {
@@ -22,7 +23,7 @@ export class AuthController {
 
     res.cookie(config.session.cookieName, data.sessionId, {
       httpOnly: config.session.cookieHttpOnly,
-      maxAge: config.session.cookieMaxAge * 1000,
+      maxAge: config.session.maxAge * 1000,
       domain: config.session.cookieDomain,
       path: config.session.cookiePath,
       sameSite: config.session.cookieSameSite,
@@ -32,10 +33,12 @@ export class AuthController {
     return data.user;
   }
 
+  @Authenticate()
   @Get('/me')
   async me(@CurrentUser() user: User, @Req() req: Request) {
     return {
-      session: (req as any).sess,
+      session: req.session,
+      user: user,
       cookies: req.cookies,
       userAgent: req.headers['user-agent'],
       ip: req.ip,

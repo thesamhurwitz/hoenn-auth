@@ -6,6 +6,7 @@ module.exports = {
     project: ['./tsconfig.json'],
   },
   rules: {
-    "@typescript-eslint/no-redeclare": "off"
+    "@typescript-eslint/no-redeclare": "off",
+    "@typescript-eslint/no-unused-vars": "off",
   }
 }

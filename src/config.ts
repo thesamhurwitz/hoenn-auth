@@ -31,30 +31,14 @@ export const config = {
     useSecret: toBool(getEnv('USE_SESSION_SECRET')),
     secret: getEnv('SESSION_SECRET'),
     rotateSecrets: toBool(getEnv('ROTATE_SECRETS')),
+    maxAge: toSeconds(getEnv('SESSION_MAXAGE')),
     cookieName: getEnv('SESSION_COOKIE_NAME'),
-    cookieMaxAge: toSeconds(getEnv('SESSION_COOKIE_MAXAGE')),
     cookieSecure: toBool(getEnv('SESSION_COOKIE_SECURE')),
     cookieHttpOnly: toBool(getEnv('SESSION_COOKIE_HTTPONLY')),
     cookieSameSite: getEnv('SESSION_COOKIE_SAMESITE') as 'lax' | 'strict' | 'none',
     cookieDomain: getEnv('SESSION_COOKIE_DOMAIN'),
     cookiePath: getEnv('SESSION_COOKIE_PATH'),
   },
-  // db: {
-  //     type: getOsEnv('DB_CONNECTION'),
-  //     host: getOsEnvOptional('DB_HOST'),
-  //     port: toNumber(getOsEnvOptional('DB_PORT')),
-  //     username: getOsEnvOptional('DB_USERNAME'),
-  //     password: getOsEnvOptional('DB_PASSWORD'),
-  //     database: getOsEnv('DB_DATABASE'),
-  //     synchronize: toBool(getOsEnvOptional('DB_SYNCHRONIZE')),
-  //     logging: getOsEnv('DB_LOGGING'),
-  // },
-  // swagger: {
-  //     enabled: toBool(getOsEnv('SWAGGER_ENABLED')),
-  //     route: getOsEnv('SWAGGER_ROUTE'),
-  //     username: getOsEnv('SWAGGER_USERNAME'),
-  //     password: getOsEnv('SWAGGER_PASSWORD'),
-  // },
 };
 
 export function getEnv(key: string): string {

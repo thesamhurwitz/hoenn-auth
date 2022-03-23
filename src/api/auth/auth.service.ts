@@ -1,4 +1,4 @@
-import prisma from '../../prisma';
+import prisma from 'src/prisma';
 import { Prisma, User } from '@prisma/client';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
@@ -7,7 +7,7 @@ import { AuthPayload } from './auth-payload';
 import { BadRequestError, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import userAgentParser from 'ua-parser-js';
 import DeviceInfo from './deviceInfo';
-import * as sessionService from '../session/session.service';
+import * as sessionService from './session.service';
 
 async function generateHash(password): Promise<string> {
   return bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
@@ -83,8 +83,6 @@ export async function signin(signinDto: SigninDto, userAgent: string, ip: string
 
   const session = await sessionService.create(user, deviceInfo);
 
-
-
   const { hash, ...result } = user;
 
   return {
@@ -114,16 +112,4 @@ export async function getProfile(payload: AuthPayload) {
   }
 
   return user;
-}
-
-export async function getJwtToken(user) {
-  const payload = {
-    username: user.username,
-    role: user.role,
-  };
-
-  return {
-    access_token: payload,
-    // access_token: this.jwtService.sign(payload),
-  };
 }

@@ -6,7 +6,7 @@
     "build": "yarn lint && yarn clean && tsc",
     "dev": "nodemon --watch src --watch .env",
     "dev.inspect": "nodemon --watch src --watch .env --inspect",
-    "start": "cross-env NODE_ENV=production node ./dist/app.js",
+    "start": "cross-env NODE_ENV=production node ./dist/src/app.js",
     "prod": "yarn build && yarn start",
     "clean": "rimraf ./dist",
     "lint": "eslint ./src/**/*.ts ./src/*.ts"

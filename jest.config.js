@@ -4,4 +4,5 @@ module.exports = {
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$',
   moduleDirectories: ['node_modules', '.'],
+  modulePathIgnorePatterns: ['<rootDir>/dist/']
 };

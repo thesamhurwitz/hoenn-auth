@@ -1,8 +1,10 @@
 import { Action } from 'routing-controllers';
 import { config } from 'src/config';
-import logger from 'src/logger';
+import { Logger } from 'src/logger';
+import Container from 'typedi';
 
 export default async function authorizationChecker(action: Action, roles: string[]): Promise<boolean> {
+  const log = Container.get(Logger);
   if (roles.length > 0) {
     return false;
   }
@@ -10,7 +12,7 @@ export default async function authorizationChecker(action: Action, roles: string
   const sessionId = action.request.cookies[config.session.cookieName];
 
   if (!sessionId) {
-    logger.warn('No session id cookie found');
+    log.warn('No session id cookie found');
     return false;
   }
 
@@ -25,6 +27,6 @@ export default async function authorizationChecker(action: Action, roles: string
   //     return false;
   // }
 
-  logger.info('Successfully checked credentials');
+  log.info('Successfully checked credentials');
   return true;
 }

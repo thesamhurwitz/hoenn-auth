@@ -1,7 +1,7 @@
 import { Body, CurrentUser, Get, JsonController, Post, Req, Res } from 'routing-controllers';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
-import * as authService from './auth.service';
+import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { User } from '@prisma/client';
 import { config } from 'src/config';
@@ -9,9 +9,13 @@ import { Authenticate } from './authenticate.decorator';
 
 @JsonController('/auth')
 export class AuthController {
+  constructor(
+    private authService: AuthService,
+  ) {}
+
   @Post('/signup')
   async signup(@Body() signupDto: SignupDto) {
-    return authService.signup(signupDto);
+    return this.authService.signup(signupDto);
   }
 
   @Post('/signin')
@@ -19,7 +23,7 @@ export class AuthController {
     const userAgent = req.headers['user-agent'];
     const ip = req.ip;
 
-    const data = await authService.signin(signinDto, userAgent, ip);
+    const data = await this.authService.signin(signinDto, userAgent, ip);
 
     res.cookie(config.session.cookieName, data.sessionId, {
       httpOnly: config.session.cookieHttpOnly,
@@ -27,7 +31,7 @@ export class AuthController {
       domain: config.session.cookieDomain,
       path: config.session.cookiePath,
       sameSite: config.session.cookieSameSite,
-      secure: config.session.cookieSecure,
+      secure: config.session.cookieSecure
     });
 
     return data.user;
@@ -41,7 +45,7 @@ export class AuthController {
       user: user,
       cookies: req.cookies,
       userAgent: req.headers['user-agent'],
-      ip: req.ip,
+      ip: req.ip
     };
   }
 

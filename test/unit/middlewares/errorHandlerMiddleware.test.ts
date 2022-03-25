@@ -1,22 +1,16 @@
 import MockExpressResponse from 'mock-express-response';
-// import { HttpError } from 'routing-controllers';
-
 import { ErrorHandlerMiddleware } from 'src/middlewares/errorHandlerMiddleware';
-
-import logger from 'src/logger';
 import { HttpError } from 'routing-controllers';
-jest.mock('src/logger', () => ({
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn()
-}));
+import { LoggerMock } from '../LoggerMock';
+
 
 describe('ErrorHandlerMiddleware', () => {
   let middleware;
   let res;
+  let log: LoggerMock;
   beforeEach(() => {
-    middleware = new ErrorHandlerMiddleware();
+    log = new LoggerMock();
+    middleware = new ErrorHandlerMiddleware(log);
     res = new MockExpressResponse();
     jest.clearAllMocks();
   });
@@ -34,11 +28,11 @@ describe('ErrorHandlerMiddleware', () => {
       name: 'Internal server error',
       message: 'Internal server error'
     });
-    expect(logger.error).toHaveBeenCalledWith(
+    expect(log.errorMock).toHaveBeenCalledWith(
       'Internal server error occurred',
       { name: error.name, message: error.message },
     );
-    expect(logger.info).not.toHaveBeenCalled();
+    expect(log.infoMock).not.toHaveBeenCalled();
   });
 
   test('Should respond with correct error', () => {
@@ -54,10 +48,10 @@ describe('ErrorHandlerMiddleware', () => {
       name: error.name,
       message: error.message
     });
-    expect(logger.info).toHaveBeenCalledWith(
+    expect(log.infoMock).toHaveBeenCalledWith(
       'Http error occurred',
       { code: error.httpCode, name: error.name, message: error.message }
     );
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(log.errorMock).not.toHaveBeenCalled();
   });
 });

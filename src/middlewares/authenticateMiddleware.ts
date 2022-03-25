@@ -1,19 +1,22 @@
 import * as express from 'express';
 import { ExpressMiddlewareInterface, UnauthorizedError } from 'routing-controllers';
 import { config } from 'src/config';
-import logger from 'src/logger';
-import * as sessionService from 'src/api/auth/session.service';
+import { Logger } from 'src/logger';
+import { SessionService } from 'src/api/auth/session.service';
+import Container from 'typedi';
 
 export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
   public async use(req: express.Request, res: express.Response, next: express.NextFunction): Promise<any> {
+    const log = Container.get(Logger);
+
     const sessionId = req.cookies[config.session.cookieName];
 
     if (!sessionId) {
-      logger.warn('No session id cookie found');
+      log.warn('No session id cookie found');
       return next(new UnauthorizedError('Could not authorize the user'));
     }
 
-    const session = await sessionService.get(sessionId);
+    const session = await Container.get(SessionService).get(sessionId);
 
     if (!session) {
       return next(new UnauthorizedError('Could not authorize the user'));

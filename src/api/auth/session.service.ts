@@ -1,95 +1,105 @@
+import { Service } from 'typedi';
 import crypto from 'crypto';
 import { User, Session } from '@prisma/client';
 import DeviceInfo from './deviceInfo';
 import { config } from 'src/config';
-import prisma from 'src/prisma';
-import logger from 'src/logger';
+import { PrismaService } from 'src/prisma.service';
+import { Logger } from 'src/logger';
 
-function generateSessionId(): string {
-  return crypto.randomBytes(config.session.idBytes).toString('hex');
-}
 
-export async function create(user: { id: number }, deviceInfo: DeviceInfo): Promise<Session> {
-  const sessionId = generateSessionId();
+@Service()
+export class SessionService {
+  constructor(
+    private log: Logger,
+    private prisma: PrismaService
+  ) {}
 
-  const session = prisma.session.create({
-    data: {
-      key: sessionId,
-      expires: new Date(Date.now() + config.session.maxAge * 1000),
-      device: JSON.stringify(deviceInfo.device),
-      ip: deviceInfo.ip,
-      location: JSON.stringify(deviceInfo.location),
-      user: {
-        connect: {
-          id: user.id,
-        },
+
+  public async create(user: { id: number }, deviceInfo: DeviceInfo): Promise<Session> {
+    const sessionId = this.generateSessionId();
+
+    const session = this.prisma.session.create({
+      data: {
+        key: sessionId,
+        expires: new Date(Date.now() + config.session.maxAge * 1000),
+        device: JSON.stringify(deviceInfo.device),
+        ip: deviceInfo.ip,
+        location: JSON.stringify(deviceInfo.location),
+        user: {
+          connect: {
+            id: user.id
+          }
+        }
       },
-    },
-    include: {
-      user: true,
-    },
-  });
+      include: {
+        user: true
+      }
+    });
 
-  return session;
-}
-
-export async function get(sessionId: string): Promise<(Session & { user: User }) | null> {
-  const session = await prisma.session.findUnique({
-    where: {
-      key: sessionId,
-    },
-    include: {
-      user: true,
-    },
-  });
-
-
-  if (!session) {
-    return null;
+    return session;
   }
 
-  if (session.expires < new Date()) {
-    logger.info('Session cookie expired');
-    return null;
+  public async get(sessionId: string): Promise<(Session & { user: User }) | null> {
+    const session = await this.prisma.session.findUnique({
+      where: {
+        key: sessionId
+      },
+      include: {
+        user: true
+      }
+    });
+
+
+    if (!session) {
+      return null;
+    }
+
+    if (session.expires < new Date()) {
+      this.log.info('Session cookie expired');
+      return null;
+    }
+
+    delete session.user.hash;
+
+    // TODO: check if expired, revoked
+
+    return session;
   }
 
-  delete session.user.hash;
+  public async list(user: User) {
+    const sessions = await this.prisma.session.findMany({
+      where: {
+        user: {
+          id: user.id
+        }
+      }
+    });
 
-  // TODO: check if expired, revoked
+    return sessions;
+  }
 
-  return session;
-}
+  public async destroy(sessionId: string) {
+    await this.prisma.session.delete({
+      where: {
+        key: sessionId
+      }
+    });
+  }
 
-export async function list(user: User) {
-  const sessions = await prisma.session.findMany({
-    where: {
-      user: {
-        id: user.id,
-      },
-    },
-  });
+  public async cleanUp() {
+    await this.prisma.session.deleteMany({
+      where: {
+        expires: {
+          lte: new Date()
+        }
+      }
+    });
+  }
 
-  return sessions;
-}
-
-export async function destroy(sessionId: string) {
-  await prisma.session.delete({
-    where: {
-      key: sessionId,
-    },
-  });
-}
-
-export async function cleanUp() {
-  await prisma.session.deleteMany({
-    where: {
-      expires: {
-        lte: new Date(),
-      },
-    },
-  });
-}
+  private generateSessionId(): string {
+    return crypto.randomBytes(config.session.idBytes).toString('hex');
+  }
 
 // destroyAllUserSessions(user)
 // destroyAllButCurrent(user, sessionId)
-
+}

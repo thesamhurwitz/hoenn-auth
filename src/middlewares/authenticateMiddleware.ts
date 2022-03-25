@@ -6,17 +6,20 @@ import { SessionService } from 'src/api/auth/session.service';
 import Container from 'typedi';
 
 export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
-  public async use(req: express.Request, res: express.Response, next: express.NextFunction): Promise<any> {
-    const log = Container.get(Logger);
+  constructor(
+    private log: Logger,
+    private sessionService: SessionService
+  ) {}
 
+  public async use(req: express.Request, res: express.Response, next: express.NextFunction): Promise<any> {
     const sessionId = req.cookies[config.session.cookieName];
 
     if (!sessionId) {
-      log.warn('No session id cookie found');
+      this.log.warn('No session id cookie found');
       return next(new UnauthorizedError('Could not authorize the user'));
     }
 
-    const session = await Container.get(SessionService).get(sessionId);
+    const session = await this.sessionService.get(sessionId);
 
     if (!session) {
       return next(new UnauthorizedError('Could not authorize the user'));

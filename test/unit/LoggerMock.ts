@@ -23,7 +23,6 @@ export class LoggerMock extends Logger {
   }
 
   public error(message: string, ...args: any[]): void {
-    console.log(...args);
     this.errorMock(message, ...args);
   }
 

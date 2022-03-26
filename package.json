@@ -10,6 +10,7 @@
     "prod": "yarn build && yarn start",
     "clean": "rimraf ./dist",
     "lint": "eslint ./src/**/*.ts ./src/*.ts",
+    "test:coverage": "jest --collect-coverage",
     "test:unit": "ENV_FILE=./config/.env.test jest --testPathPattern=unit"
   },
   "author": "Sam Hurwitz",

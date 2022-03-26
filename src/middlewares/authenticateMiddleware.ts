@@ -3,7 +3,6 @@ import { ExpressMiddlewareInterface, UnauthorizedError } from 'routing-controlle
 import { config } from 'src/config';
 import { Logger } from 'src/logger';
 import { SessionService } from 'src/api/auth/session.service';
-import Container from 'typedi';
 
 export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
   constructor(
@@ -15,13 +14,15 @@ export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
     const sessionId = req.cookies[config.session.cookieName];
 
     if (!sessionId) {
-      this.log.warn('No session id cookie found');
+      // TODO: log user's ip and user agent
+      this.log.info('No session id cookie found');
       return next(new UnauthorizedError('Could not authorize the user'));
     }
 
     const session = await this.sessionService.get(sessionId);
 
     if (!session) {
+      this.log.info('Session with such id does not exist', { sid: sessionId });
       return next(new UnauthorizedError('Could not authorize the user'));
     }
 

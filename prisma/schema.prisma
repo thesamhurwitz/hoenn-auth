@@ -45,12 +45,12 @@ model Session {
 model Profile {
   id Int @id @default(autoincrement())
 
-  bio      String
+  bio      String?
   picture  String?
   birthday DateTime?
   gender   String?
   emails   String[]
-  phone    String
+  phone    String?
 
 
   user   User @relation(fields: [userId], references: [id])

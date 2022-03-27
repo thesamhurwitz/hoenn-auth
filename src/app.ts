@@ -4,8 +4,8 @@ import { config } from './config';
 import express, { Application } from 'express';
 import { createExpressServer } from 'routing-controllers';
 import mrgn from 'morgan';
-import authorizationChecker from './api/auth/authorizationChecker';
-import currentUserChecker from './api/auth/currentUserChecker';
+import authorizationChecker from 'src/auth/authorizationChecker';
+import currentUserChecker from 'src/auth/currentUserChecker';
 import Container from 'typedi';
 import { Logger } from './logger';
 

@@ -7,11 +7,11 @@ import * as bcrypt from 'bcrypt';
 import { AuthPayload } from './auth-payload';
 import { BadRequestError, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import userAgentParser from 'ua-parser-js';
-import DeviceInfo from './deviceInfo';
-import { SessionService } from './session.service';
+import DeviceInfo from '../../auth/deviceInfo';
+import { SessionService } from 'src/auth/session-storage.service';
 
 @Service()
-export class AuthService {
+export class UserService {
   constructor(
     private prisma: PrismaService,
     private sessionService: SessionService

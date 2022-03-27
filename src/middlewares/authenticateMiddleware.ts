@@ -2,7 +2,7 @@ import * as express from 'express';
 import { ExpressMiddlewareInterface, UnauthorizedError } from 'routing-controllers';
 import { config } from 'src/config';
 import { Logger } from 'src/logger';
-import { SessionService } from 'src/api/auth/session.service';
+import { SessionService } from 'src/auth/session-storage.service';
 
 export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
   constructor(

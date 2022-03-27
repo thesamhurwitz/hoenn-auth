@@ -1,21 +1,21 @@
 import { Body, CurrentUser, Get, JsonController, Post, Req, Res } from 'routing-controllers';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
-import { AuthService } from './auth.service';
+import { UserService } from './user.service';
 import { Request, Response } from 'express';
 import { User } from '@prisma/client';
 import { config } from 'src/config';
-import { Authenticate } from './authenticate.decorator';
+import { Authenticate } from 'src/auth/authenticate.decorator';
 
-@JsonController('/auth')
-export class AuthController {
+@JsonController('/user')
+export class UserController {
   constructor(
-    private authService: AuthService,
+    private userService: UserService,
   ) {}
 
   @Post('/signup')
   async signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+    return this.userService.signup(signupDto);
   }
 
   @Post('/signin')
@@ -23,7 +23,7 @@ export class AuthController {
     const userAgent = req.headers['user-agent'];
     const ip = req.ip;
 
-    const data = await this.authService.signin(signinDto, userAgent, ip);
+    const data = await this.userService.signin(signinDto, userAgent, ip);
 
     res.cookie(config.session.cookieName, data.sessionId, {
       httpOnly: config.session.cookieHttpOnly,

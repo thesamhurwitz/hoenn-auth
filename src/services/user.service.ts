@@ -1,13 +1,13 @@
 import { Service } from 'typedi';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma, User } from '@prisma/client';
-import { SignupDto } from './dto/signup.dto';
-import { SigninDto } from './dto/signin.dto';
+import { SignupDto } from 'src/api/user/dto/signup.dto';
+import { SigninDto } from 'src/api/user/dto/signin.dto';
 import * as bcrypt from 'bcrypt';
-import { AuthPayload } from './auth-payload';
+import { AuthPayload } from 'src/api/user/auth-payload';
 import { BadRequestError, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import userAgentParser from 'ua-parser-js';
-import DeviceInfo from '../../auth/deviceInfo';
+import DeviceInfo from 'src/auth/deviceInfo';
 import { SessionService } from 'src/auth/session-storage.service';
 
 @Service()

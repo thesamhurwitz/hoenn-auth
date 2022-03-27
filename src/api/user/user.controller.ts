@@ -1,7 +1,7 @@
 import { Body, CurrentUser, Get, JsonController, Post, Req, Res } from 'routing-controllers';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
-import { UserService } from './user.service';
+import { UserService } from 'src/services/user.service';
 import { Request, Response } from 'express';
 import { User } from '@prisma/client';
 import { config } from 'src/config';

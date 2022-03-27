@@ -3,7 +3,9 @@ import { ExpressMiddlewareInterface, UnauthorizedError } from 'routing-controlle
 import { config } from 'src/config';
 import { Logger } from 'src/logger';
 import { SessionService } from 'src/auth/session-storage.service';
+import { Service } from 'typedi';
 
+@Service()
 export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
   constructor(
     private log: Logger,

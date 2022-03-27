@@ -6,11 +6,13 @@ import { Request, Response } from 'express';
 import { User } from '@prisma/client';
 import { config } from 'src/config';
 import { Authenticate } from 'src/auth/authenticate.decorator';
+import { SessionService } from 'src/auth/session-storage.service';
 
 @JsonController('/user')
 export class UserController {
   constructor(
     private userService: UserService,
+    private sessionService: SessionService
   ) {}
 
   @Post('/signup')
@@ -42,15 +44,19 @@ export class UserController {
   async me(@CurrentUser() user: User, @Req() req: Request) {
     return {
       session: req.session,
-      user: user,
-      cookies: req.cookies,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip
+      user: user
     };
   }
 
+  @Authenticate()
   @Get('/profile')
-  async profile(@Req() req: Request) {
-    return { cookies: req.cookies };
+  async profile(@CurrentUser() user: User) {
+    return this.userService.getProfile(user.username);
+  }
+
+  @Authenticate()
+  @Get('/sessions')
+  async getSessions(@CurrentUser() user: User, @Req() req: Request) {
+    return this.sessionService.list(user, req.session.key);
   }
 }

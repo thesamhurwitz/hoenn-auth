@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import crypto from 'crypto';
-import { User, Session } from '@prisma/client';
+import { User } from '@prisma/client';
 import DeviceInfo from './deviceInfo';
 import { config } from 'src/config';
 import { PrismaService } from 'src/prisma.service';
@@ -15,7 +15,7 @@ export class SessionService {
   ) {}
 
 
-  public async create(user: { id: number }, deviceInfo: DeviceInfo): Promise<Session> {
+  public async create(user: { id: number }, deviceInfo: DeviceInfo) {
     const sessionId = this.generateSessionId();
 
     const session = this.prisma.session.create({
@@ -31,24 +31,53 @@ export class SessionService {
           }
         }
       },
-      include: {
-        user: true
+      select: {
+        key: true,
+        createdAt: true,
+        expires: true,
+        lastAccess: true,
+        ip: true,
+        device: true,
+        location: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            role: true,
+            createdAt: true
+          }
+        }
       }
     });
 
     return session;
   }
 
-  public async get(sessionId: string): Promise<(Session & { user: User }) | null> {
+  public async get(sessionId: string) {
     const session = await this.prisma.session.findUnique({
       where: {
         key: sessionId
       },
-      include: {
-        user: true
+      select: {
+        key: true,
+        createdAt: true,
+        expires: true,
+        lastAccess: true,
+        ip: true,
+        device: true,
+        location: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            role: true,
+            createdAt: true
+          }
+        }
       }
     });
-
 
     if (!session) {
       return null;
@@ -59,29 +88,71 @@ export class SessionService {
       return null;
     }
 
-    delete session.user.hash;
-
-    // TODO: check if expired, revoked
-
     return session;
   }
 
-  public async list(user: User) {
+  public async list(user: User, currentSessionId?: string) {
     const sessions = await this.prisma.session.findMany({
+      where: {
+        user: {
+          id: user.id
+        },
+        expires: {
+          gte: new Date()
+        }
+      },
+      select: {
+        key: true,
+        createdAt: true,
+        expires: true,
+        lastAccess: true,
+        ip: true,
+        device: true,
+        location: true
+      }
+    });
+
+    const result = sessions.map((session) => {
+      const { key, ...rest } = session;
+
+      return {
+        ...(key === currentSessionId) && { current: true },
+        ...rest
+      };
+    });
+
+    return result;
+  }
+
+  public async destroy(sessionId: string): Promise<void> {
+    await this.prisma.session.delete({
+      where: {
+        key: sessionId
+      }
+    });
+  }
+
+  public async destroyAll(user: User): Promise<void> {
+    await this.prisma.session.deleteMany({
       where: {
         user: {
           id: user.id
         }
       }
     });
-
-    return sessions;
   }
 
-  public async destroy(sessionId: string) {
-    await this.prisma.session.delete({
+  public async destroyAllButCurrent(user: User, currentSessionId: string) {
+    await this.prisma.session.deleteMany({
       where: {
-        key: sessionId
+        AND: {
+          user: {
+            id: user.id
+          },
+          NOT: {
+            key: currentSessionId
+          }
+        }
       }
     });
   }
@@ -99,7 +170,4 @@ export class SessionService {
   private generateSessionId(): string {
     return crypto.randomBytes(config.session.idBytes).toString('hex');
   }
-
-// destroyAllUserSessions(user)
-// destroyAllButCurrent(user, sessionId)
 }

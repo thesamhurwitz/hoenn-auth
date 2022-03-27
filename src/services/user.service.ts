@@ -4,7 +4,6 @@ import { Prisma, User } from '@prisma/client';
 import { SignupDto } from 'src/api/user/dto/signup.dto';
 import { SigninDto } from 'src/api/user/dto/signin.dto';
 import * as bcrypt from 'bcrypt';
-import { AuthPayload } from 'src/api/user/auth-payload';
 import { BadRequestError, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import userAgentParser from 'ua-parser-js';
 import DeviceInfo from 'src/auth/deviceInfo';
@@ -99,10 +98,10 @@ export class UserService {
     };
   }
 
-  public async getProfile(payload: AuthPayload) {
+  public async getProfile(username: string) {
     const user = this.prisma.user.findUnique({
       where: {
-        username: payload.username
+        username
       },
       select: {
         id: true,

@@ -30,7 +30,6 @@ describe('AuthenticationMiddleware', () => {
     await middleware.use(req, new MockExpressResponse(), next);
 
     expect(sessionMock.getMock).not.toBeCalled();
-    expect(log.infoMock).toBeCalledWith('No session id cookie found');
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new UnauthorizedError('Could not authorize the user'));
     expect(req.user).toBeUndefined();
@@ -52,7 +51,6 @@ describe('AuthenticationMiddleware', () => {
     await middleware.use(req, new MockExpressResponse(), next);
 
     expect(sessionMock.getMock).toBeCalledWith('test');
-    expect(log.infoMock).toBeCalledWith('Session with such id does not exist', { sid: 'test' });
     expect(next).toBeCalledTimes(1);
     expect(next.mock.calls[0][0]).toStrictEqual(new UnauthorizedError('Could not authorize the user'));
     expect(req.user).toBeUndefined();

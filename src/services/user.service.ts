@@ -90,6 +90,8 @@ export class UserService {
       throw new UnauthorizedError('Wrong password');
     }
 
+    delete user.hash;
+
     this.log.info('Credentials are correct');
 
     const deviceInfo: DeviceInfo = {
@@ -100,10 +102,8 @@ export class UserService {
 
     const session = await this.sessionService.create(user, deviceInfo);
 
-    const { hash, ...result } = user;
-
     return {
-      user: result,
+      user,
       sessionId: session.key
     };
   }

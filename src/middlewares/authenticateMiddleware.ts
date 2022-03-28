@@ -14,10 +14,18 @@ export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
 
   public async use(req: express.Request, res: express.Response, next: express.NextFunction): Promise<any> {
     const sessionId = req.cookies[config.session.cookieName];
+    const strictSessionId = req.cookies[config.session.cookieStrictName];
 
     if (!sessionId) {
       this.log.info('No session cookie found', { ip: req.ip, userAgent: req.header['user-agent'] });
       return next(new UnauthorizedError('Could not authorize the user'));
+    }
+
+    if (config.session.useCsrfDoubleCookie &&
+      req.method !== 'GET' &&
+      sessionId !== strictSessionId
+    ) {
+      this.log.info('CSRF cookie does not exist or does not match session cookie');
     }
 
     const session = await this.sessionService.get(sessionId);

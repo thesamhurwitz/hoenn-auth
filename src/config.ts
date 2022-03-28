@@ -27,15 +27,11 @@ export const config = {
     output: getEnv('LOG_OUTPUT')
   },
   session: {
-    idBytes: toNumber(getEnv('SESSION_ID_BYTES')),
-    useSecret: toBool(getEnv('USE_SESSION_SECRET')),
-    secret: getEnv('SESSION_SECRET'),
-    rotateSecrets: toBool(getEnv('ROTATE_SECRETS')),
+    keyLength: toNumber(getEnv('SESSION_KEY_LENGTH')),
     maxAge: toSeconds(getEnv('SESSION_MAXAGE')),
+    useCsrfDoubleCookie: toBool(getEnv('SESSION_DOUBLE_COOKIE')),
     cookieName: getEnv('SESSION_COOKIE_NAME'),
-    cookieSecure: toBool(getEnv('SESSION_COOKIE_SECURE')),
-    cookieHttpOnly: toBool(getEnv('SESSION_COOKIE_HTTPONLY')),
-    cookieSameSite: getEnv('SESSION_COOKIE_SAMESITE') as 'lax' | 'strict' | 'none',
+    cookieStrictName: `__Host-${getEnv('SESSION_COOKIE_NAME')}_strict`,
     cookieDomain: getEnv('SESSION_COOKIE_DOMAIN'),
     cookiePath: getEnv('SESSION_COOKIE_PATH')
   }

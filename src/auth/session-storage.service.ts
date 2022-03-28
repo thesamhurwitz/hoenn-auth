@@ -215,6 +215,6 @@ export class SessionService {
   }
 
   private generateSessionId(): string {
-    return crypto.randomBytes(config.session.idBytes).toString('hex');
+    return crypto.randomBytes(config.session.keyLength).toString('hex');
   }
 }

@@ -28,13 +28,20 @@ export class UserController {
     const data = await this.userService.signin(signinDto, userAgent, ip);
 
     res.cookie(config.session.cookieName, data.sessionId, {
-      httpOnly: config.session.cookieHttpOnly,
-      maxAge: config.session.maxAge * 1000,
-      domain: config.session.cookieDomain,
-      path: config.session.cookiePath,
-      sameSite: config.session.cookieSameSite,
-      secure: config.session.cookieSecure
+      httpOnly: config.isProduction,
+      secure: config.isProduction,
+      sameSite: 'lax',
+      maxAge: config.session.maxAge * 1000
     });
+
+    if (config.session.useCsrfDoubleCookie) {
+      res.cookie(config.session.cookieStrictName, data.sessionId, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: config.session.maxAge * 1000
+      });
+    }
 
     return data.user;
   }

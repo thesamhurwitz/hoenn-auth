@@ -16,6 +16,8 @@ export class SessionService {
 
 
   public async create(user: { id: number }, deviceInfo: DeviceInfo) {
+    this.log.info('Create session', { user, deviceInfo });
+
     const sessionId = this.generateSessionId();
 
     const session = this.prisma.session.create({
@@ -55,6 +57,8 @@ export class SessionService {
   }
 
   public async get(sessionId: string) {
+    this.log.info('Get session');
+
     const session = await this.prisma.session.findUnique({
       where: {
         key: sessionId
@@ -80,18 +84,23 @@ export class SessionService {
     });
 
     if (!session) {
+      this.log.info('Session key does not exist');
       return null;
     }
 
     if (session.expires < new Date()) {
-      this.log.info('Session cookie expired');
+      this.log.warn('Session in database expired');
       return null;
     }
+
+    this.log.debug('Successfully retrieved session', { ...session, key: '--removed--' });
 
     return session;
   }
 
   public async list(user: User, currentSessionId?: string) {
+    this.log.info('List sessions', { user });
+
     const sessions = await this.prisma.session.findMany({
       where: {
         user: {
@@ -125,6 +134,8 @@ export class SessionService {
   }
 
   public async destroy(sessionId: string): Promise<void> {
+    this.log.info('Destroy session');
+
     await this.prisma.session.delete({
       where: {
         key: sessionId
@@ -133,6 +144,8 @@ export class SessionService {
   }
 
   public async destroyAll(user: User): Promise<void> {
+    this.log.info('Destroy all sessions', { user });
+
     await this.prisma.session.deleteMany({
       where: {
         user: {
@@ -143,6 +156,8 @@ export class SessionService {
   }
 
   public async destroyAllButCurrent(user: User, currentSessionId: string) {
+    this.log.debug('Destroy all, but current', user);
+
     await this.prisma.session.deleteMany({
       where: {
         AND: {
@@ -158,6 +173,7 @@ export class SessionService {
   }
 
   public async cleanUp() {
+    this.log.info('Session cleanup');
     await this.prisma.session.deleteMany({
       where: {
         expires: {

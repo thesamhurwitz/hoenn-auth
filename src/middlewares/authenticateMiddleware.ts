@@ -16,17 +16,18 @@ export class AuthenticateMiddleware implements ExpressMiddlewareInterface {
     const sessionId = req.cookies[config.session.cookieName];
 
     if (!sessionId) {
-      // TODO: log user's ip and user agent
-      this.log.info('No session id cookie found');
+      this.log.info('No session cookie found', { ip: req.ip, userAgent: req.header['user-agent'] });
       return next(new UnauthorizedError('Could not authorize the user'));
     }
 
     const session = await this.sessionService.get(sessionId);
 
     if (!session) {
-      this.log.info('Session with such id does not exist', { sid: sessionId });
+      this.log.info('Wrong session cookie', { ip: req.ip, userAgent: req.header['user-agent'], sid: sessionId });
       return next(new UnauthorizedError('Could not authorize the user'));
     }
+
+    this.log.info('Successfully authenticated user', { ...session, key: '--removed--' });
 
     req.session = session;
     req.user = session.user;

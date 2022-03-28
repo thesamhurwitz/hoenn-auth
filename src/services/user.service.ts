@@ -8,12 +8,14 @@ import { BadRequestError, NotFoundError, UnauthorizedError } from 'routing-contr
 import userAgentParser from 'ua-parser-js';
 import DeviceInfo from 'src/auth/deviceInfo';
 import { SessionService } from 'src/auth/session-storage.service';
+import { Logger } from 'src/logger';
 
 @Service()
 export class UserService {
   constructor(
     private prisma: PrismaService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private log: Logger
   ) {}
 
   private async generateHash(password): Promise<string> {
@@ -25,6 +27,8 @@ export class UserService {
   }
 
   public async signup(signupDto: SignupDto) {
+    this.log.info('Sign up', { ...signupDto, password: '--removed--' });
+
     const hash = await this.generateHash(signupDto.password);
 
     try {
@@ -57,6 +61,8 @@ export class UserService {
   }
 
   public async signin(signinDto: SigninDto, userAgent: string, ip: string): Promise<{ user: Partial<User>, sessionId: string }> {
+    this.log.info('Sign up', { ...signinDto, password: '--removed--', ip, userAgent });
+
     const user = await this.prisma.user.findUnique({
       where: {
         username: signinDto.username
@@ -73,14 +79,18 @@ export class UserService {
     });
 
     if (!user) {
+      this.log.info('Wrong username');
       throw new UnauthorizedError(
         'User with such username does not exist',
       );
     }
 
     if (!(await this.validateHash(signinDto.password, user.hash))) {
+      this.log.info('Wrong password');
       throw new UnauthorizedError('Wrong password');
     }
+
+    this.log.info('Credentials are correct');
 
     const deviceInfo: DeviceInfo = {
       ip,

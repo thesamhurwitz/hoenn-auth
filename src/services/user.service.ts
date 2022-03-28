@@ -47,7 +47,7 @@ export class UserService {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2002') {
           throw new BadRequestError(
-            'User with such username or email already exists.',
+            'User with such username or email already exists',
           );
         }
       }
@@ -74,12 +74,12 @@ export class UserService {
 
     if (!user) {
       throw new UnauthorizedError(
-        'User with such username does not exist.',
+        'User with such username does not exist',
       );
     }
 
     if (!(await this.validateHash(signinDto.password, user.hash))) {
-      throw new UnauthorizedError('Wrong password.');
+      throw new UnauthorizedError('Wrong password');
     }
 
     const deviceInfo: DeviceInfo = {

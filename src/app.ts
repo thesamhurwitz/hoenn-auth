@@ -22,6 +22,7 @@ const expressApp: Application = createExpressServer({
   routePrefix: config.app.routePrefix,
   defaultErrorHandler: false,
 
+  // TODO: move to config
   controllers: [join(__dirname + '/api/**/*.controller.ts')],
   middlewares: [join(__dirname + '/middlewares/*.ts')],
   interceptors: [],

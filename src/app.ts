@@ -3,7 +3,6 @@ import 'reflect-metadata';
 import { config } from './config';
 import express, { Application } from 'express';
 import { createExpressServer } from 'routing-controllers';
-import mrgn from 'morgan';
 import authorizationChecker from 'src/auth/authorizationChecker';
 import currentUserChecker from 'src/auth/currentUserChecker';
 import Container from 'typedi';
@@ -31,10 +30,11 @@ const expressApp: Application = createExpressServer({
   currentUserChecker: currentUserChecker
 });
 
+const logger = Container.get(Logger);
+
 // To expose client ip address (see http://expressjs.com/en/guide/behind-proxies.html)
 expressApp.set('trust proxy', true);
 
-expressApp.use(mrgn(config.log.output));
 
 expressApp.get(config.app.routePrefix, (req: express.Request, res: express.Response) => {
   return res.json({
@@ -48,4 +48,4 @@ expressApp.get(config.app.routePrefix, (req: express.Request, res: express.Respo
 expressApp.use(express.static(join(__dirname, '..', 'public'), { maxAge: 31557600000 }));
 
 expressApp.listen(config.app.port);
-Container.get(Logger).info(`Server running on port ${config.app.port}`);
+logger.info(`Server running on port ${config.app.port}`);

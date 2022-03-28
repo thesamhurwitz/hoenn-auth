@@ -5,8 +5,11 @@ import request from 'supertest';
 describe('/api/user', () => {
   let ctx: Awaited<ReturnType<typeof bootstrap>>;
   beforeAll(async () => {
-    ctx = await bootstrap();
-
+    try {
+      ctx = await bootstrap();
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   afterAll(async () => {

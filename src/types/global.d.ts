@@ -1,10 +1,11 @@
 import { Session, User } from '@prisma/client';
+import { SessionPayload, UserPayload } from 'src/auth/session-payload';
 
 declare global {
   declare namespace Express {
     export interface Request {
-      session?: Partial<Session> & { user: partial<User> },
-      user?: Partial<User>
+      session: SessionPayload,
+      user: UserPayload
     }
   }
 }

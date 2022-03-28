@@ -3,10 +3,10 @@ import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { UserService } from 'src/services/user.service';
 import { Request, Response } from 'express';
-import { User } from '@prisma/client';
 import { config } from 'src/config';
 import { Authenticate } from 'src/auth/authenticate.decorator';
 import { SessionService } from 'src/auth/session-storage.service';
+import { UserPayload } from 'src/auth/session-payload';
 
 @JsonController('/user')
 export class UserController {
@@ -41,7 +41,7 @@ export class UserController {
 
   @Authenticate()
   @Get('/me')
-  async me(@CurrentUser() user: User, @Req() req: Request) {
+  async me(@CurrentUser() user: UserPayload, @Req() req: Request) {
     return {
       session: req.session,
       user: user
@@ -50,13 +50,13 @@ export class UserController {
 
   @Authenticate()
   @Get('/profile')
-  async profile(@CurrentUser() user: User) {
+  async profile(@CurrentUser() user: UserPayload) {
     return this.userService.getProfile(user.username);
   }
 
   @Authenticate()
   @Get('/sessions')
-  async getSessions(@CurrentUser() user: User, @Req() req: Request) {
-    return this.sessionService.list(user, req.session.key);
+  async getSessions(@CurrentUser() user: UserPayload, @Req() req: Request) {
+    return this.sessionService.list(user, req.cookies.sid);
   }
 }

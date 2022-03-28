@@ -5,6 +5,7 @@ import DeviceInfo from './deviceInfo';
 import { config } from 'src/config';
 import { PrismaService } from 'src/prisma.service';
 import { Logger } from 'src/logger';
+import { SessionPayload, UserPayload } from './session-payload';
 
 
 @Service()
@@ -15,12 +16,12 @@ export class SessionService {
   ) {}
 
 
-  public async create(user: { id: number }, deviceInfo: DeviceInfo) {
+  public async create(user: UserPayload, deviceInfo: DeviceInfo): Promise<{ key: string, payload: SessionPayload }> {
     this.log.info('Create session', { user, deviceInfo });
 
     const sessionId = this.generateSessionId();
 
-    const session = this.prisma.session.create({
+    const session = await this.prisma.session.create({
       data: {
         key: sessionId,
         expires: new Date(Date.now() + config.session.maxAge * 1000),
@@ -29,7 +30,7 @@ export class SessionService {
         location: JSON.stringify(deviceInfo.location),
         user: {
           connect: {
-            id: user.id
+            username: user.username
           }
         }
       },
@@ -53,15 +54,30 @@ export class SessionService {
       }
     });
 
-    return session;
+    return {
+      key: session.key,
+      payload: {
+        ip: session.ip,
+        device: JSON.parse(session.device.toString()),
+        location: JSON.parse(session.location.toString()),
+        expires: session.expires,
+        createdAt: session.createdAt,
+        lastAccess: session.lastAccess,
+        user: {
+          username: session.user.username,
+          email: session.user.email,
+          role: session.user.role
+        }
+      }
+    };
   }
 
-  public async get(sessionId: string) {
+  public async get(sessionKey: string): Promise<SessionPayload> {
     this.log.info('Get session');
 
     const session = await this.prisma.session.findUnique({
       where: {
-        key: sessionId
+        key: sessionKey
       },
       select: {
         key: true,
@@ -95,16 +111,28 @@ export class SessionService {
 
     this.log.debug('Successfully retrieved session', { ...session, key: '--removed--' });
 
-    return session;
+    return {
+      ip: session.ip,
+      device: JSON.parse(session.device.toString()),
+      location: JSON.parse(session.location.toString()),
+      expires: session.expires,
+      createdAt: session.createdAt,
+      lastAccess: session.lastAccess,
+      user: {
+        username: session.user.username,
+        email: session.user.email,
+        role: session.user.role
+      }
+    };
   }
 
-  public async list(user: User, currentSessionId?: string) {
+  public async list(user: UserPayload, currentSessionId?: string) {
     this.log.info('List sessions', { user });
 
     const sessions = await this.prisma.session.findMany({
       where: {
         user: {
-          id: user.id
+          username: user.username
         },
         expires: {
           gte: new Date()
@@ -122,11 +150,14 @@ export class SessionService {
     });
 
     const result = sessions.map((session) => {
-      const { key, ...rest } = session;
-
       return {
-        ...(key === currentSessionId) && { current: true },
-        ...rest
+        ...(session.key === currentSessionId) && { current: true },
+        ip: session.ip,
+        device: JSON.parse(session.device.toString()),
+        location: JSON.parse(session.location.toString()),
+        expires: session.expires,
+        createdAt: session.createdAt,
+        lastAccess: session.lastAccess
       };
     });
 
@@ -155,14 +186,14 @@ export class SessionService {
     });
   }
 
-  public async destroyAllButCurrent(user: User, currentSessionId: string) {
+  public async destroyAllButCurrent(user: UserPayload, currentSessionId: string) {
     this.log.debug('Destroy all, but current', user);
 
     await this.prisma.session.deleteMany({
       where: {
         AND: {
           user: {
-            id: user.id
+            username: user.username
           },
           NOT: {
             key: currentSessionId
